@@ -25,24 +25,28 @@ docker run -d \
 
 ---
 
-## Step 2: Edit Configuration
+## Step 2: Configure
 
-Edit:
+Until `mqtt.host`, `ssh.host` and the recovery code are set (in `config.json`, or with `-e`),
+the container waits and logs `Waiting for configuration`.
 
+Run the interactive setup:
+
+```bash
+docker exec -it doorbell-mqtt-unifi config
 ```
-/path/to/doorbell-mqtt-unifi/config/config.json
-```
 
-Set:
+It asks for the MQTT broker, the doorbell address, the recovery code and the apply method.
+Values already in `config.json` are shown and kept when you press Enter, and values set
+with environment variables are skipped. The recovery code is saved in `/config/secrets.env`.
 
-- `mqtt.host`
-- `ssh.host`
-
-Then restart:
+The service starts as soon as the configuration is complete. If it was already running, restart it:
 
 ```bash
 docker restart doorbell-mqtt-unifi
 ```
+
+You can also edit `/path/to/doorbell-mqtt-unifi/config/config.json` by hand, then restart the container.
 
 ---
 

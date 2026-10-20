@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     libpaho-mqtt1.3 \
     ca-certificates \
     gosu \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -40,7 +41,8 @@ COPY config.example.json /defaults/config.json
 COPY test-profile/ /app/test-profile/
 
 COPY docker-entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY docker-config.sh /usr/local/bin/config
+RUN chmod +x /entrypoint.sh /usr/local/bin/config
 
 VOLUME ["/config", "/profiles", "/sounds"]
 
