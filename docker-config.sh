@@ -6,13 +6,41 @@ set -eu
 CONFIG="${DOORBELL_CONFIG_PATH:-/config/config.json}"
 SECRETS="$(dirname "$CONFIG")/secrets.env"
 
+# ANSI colors, enabled only when stderr is a terminal (interactive runs and --check).
+# Explanations (TXT_INFO) and the input zone (TXT_INPUT) use different colors so
+# the field to type in stands out clearly from the surrounding help text.
+if [ -t 2 ]; then
+  ESC="$(printf '\033')"
+  TXT_RESET="${ESC}[0m"
+  TXT_BOLD="${ESC}[1m"
+  TXT_DIM="${ESC}[2m"
+  TXT_TITLE="${ESC}[1;37m"        # bold white  : main title
+  TXT_HEADER="${ESC}[1;36m"       # bold cyan   : section headers  (== ... ==)
+  TXT_INFO="${ESC}[36m"           # cyan        : explanations / help text
+  TXT_INPUT="${ESC}[1;33m"        # bold yellow : input zone (what the user types)
+  TXT_ERROR="${ESC}[1;31m"        # bold red    : errors
+  TXT_OK="${ESC}[1;32m"           # bold green  : success messages
+else
+  TXT_RESET="" TXT_BOLD="" TXT_DIM="" TXT_TITLE="" TXT_HEADER=""
+  TXT_INFO="" TXT_INPUT="" TXT_ERROR="" TXT_OK=""
+fi
+
+err() {
+  printf '%s%s%s\n' "$TXT_ERROR" "$*" "$TXT_RESET" >&2
+}
+
+# header <name>: section title, visually separated from the rest
+header() {
+  printf '\n%s== %s ==%s\n' "$TXT_HEADER" "$1" "$TXT_RESET"
+}
+
 json_get() { jq -r "$1 // empty" "$CONFIG"; }
 
 password_env_name() {
   name="$(json_get .ssh.password_env)"
   name="${name:-UNIFI_PROTECT_RECOVERY_CODE}"
   case "$name" in
-    ''|[0-9]*|*[!A-Za-z0-9_]*) echo "Invalid ssh.password_env '$name'" >&2; exit 1 ;;
+    ''|[0-9]*|*[!A-Za-z0-9_]*) err "Invalid ssh.password_env '$name'"; exit 1 ;;
   esac
   printf '%s' "$name"
 }
@@ -32,7 +60,7 @@ if [ "${1:-}" = "--check" ]; then
   eval "pw=\${$pw_env:-}"
   [ -n "$pw" ] || [ -n "$(secret_get "$pw_env")" ] || missing="$missing $pw_env"
   if [ -n "$missing" ]; then
-    echo "[WARN] Missing configuration:$missing"
+    err "[WARN] Missing configuration:$missing"
     exit 1
   fi
   exit 0
@@ -47,17 +75,20 @@ trap 'stty echo 2>/dev/null || true' EXIT
 trap 'exit 130' INT TERM
 
 # ask <label> <current> [secret]: prints the answer, Enter keeps the current value
+# The label and the typed field are shown in the "input zone" color; the typed text
+# is echoed in the same color so it is easy to check what was entered.
 ask() {
   if [ "${3:-}" = secret ]; then
     if [ -n "$2" ]; then hint="set, Enter to keep"; else hint="empty"; fi
-    printf '%s [%s]: ' "$1" "$hint" >&2
+    printf '%s> %s [%s]: %s' "$TXT_INPUT" "$1" "$hint" "$TXT_INPUT" >&2
     stty -echo
     IFS= read -r answer || true
     stty echo
-    echo >&2
+    printf '%s\n' "$TXT_RESET" >&2
   else
-    printf '%s [%s]: ' "$1" "$2" >&2
+    printf '%s> %s [%s]: %s' "$TXT_INPUT" "$1" "$2" "$TXT_INPUT" >&2
     IFS= read -r answer || true
+    printf '%s' "$TXT_RESET" >&2
   fi
   printf '%s' "${answer:-$2}"
 }
@@ -66,7 +97,7 @@ ask_port() {
   while :; do
     port="$(ask "$1" "$2")"
     case "$port" in
-      ''|*[!0-9]*) echo "Port must be a number" >&2 ;;
+      ''|*[!0-9]*) err "Port must be a number" ;;
       *) printf '%s' "$port"; return ;;
     esac
   done
@@ -76,30 +107,29 @@ ask_port() {
 ask_field() {
   eval "env_val=\${$3:-}"
   if [ -n "$env_val" ]; then
-    echo "$1: set by environment variable $3" >&2
+    printf '%s%s: set by environment variable %s%s\n' "$TXT_DIM" "$1" "$3" "$TXT_RESET" >&2
     json_get "$2"
     return
   fi
   ask "$1" "$(json_get "$2")" "${4:-}"
 }
 
-# info <line>...: explanation shown before a question
+# info <line>...: explanation shown before a question, in the help color
 info() {
-  for line in "$@"; do printf '  | %s\n' "$line" >&2; done
+  for line in "$@"; do printf '%s  | %s%s\n' "$TXT_INFO" "$line" "$TXT_RESET" >&2; done
 }
 
-echo "Doorbell MQTT UniFi configuration ($CONFIG)"
-echo "Press Enter to keep the value shown in brackets."
-echo
-echo "Before you start, have at hand:"
-echo "  - the address and credentials of your MQTT broker (often the Mosquitto add-on of Home Assistant)"
-echo "  - the IP address of the doorbell, shown in UniFi Protect > Devices > your doorbell"
-echo "  - the recovery code of UniFi Protect (see the SSH section below)"
-echo
+printf '%sDoorbell MQTT UniFi configuration (%s)%s\n' "$TXT_TITLE" "$CONFIG" "$TXT_RESET"
+printf '%sPress Enter to keep the value shown in brackets.%s\n' "$TXT_DIM" "$TXT_RESET"
+printf '\n'
+info "Before you start, have at hand:" \
+     "  - the address and credentials of your MQTT broker (often the Mosquitto add-on of Home Assistant)" \
+     "  - the IP address of the doorbell, shown in UniFi Protect > Devices > your doorbell" \
+     "  - the recovery code of UniFi Protect (see the SSH section below)"
 
-echo "== MQTT broker =="
+header "MQTT broker"
 info "The broker Home Assistant uses to discover this doorbell."
-echo >&2
+printf '\n'
 info "IP or hostname of the broker, e.g. 192.168.1.10." \
      "With the Mosquitto add-on, it is the IP of your Home Assistant server." \
      "Do not use localhost: inside Docker it means this container."
@@ -116,10 +146,9 @@ info "Short name of this doorbell, e.g. front_door. It becomes the device name i
 mqtt_instance="$(ask_field "Instance" .mqtt.instance MQTT_INSTANCE)"
 mqtt_instance="${mqtt_instance:-default}"
 
-echo
-echo "== Doorbell (SSH) =="
+header "Doorbell (SSH)"
 info "The service sends animations and sounds to the doorbell over SSH."
-echo >&2
+printf '\n'
 info "IP address of the G4 Doorbell Pro: UniFi Protect > Devices > select the doorbell." \
      "Give it a fixed IP (DHCP reservation) so this value does not change."
 ssh_host="$(ask_field "Doorbell IP or hostname" .ssh.host SSH_HOST)"
@@ -131,17 +160,17 @@ ssh_user="$(ask_field "SSH username" ".ssh.username // \"ubnt\"" SSH_USERNAME)"
 pw_env="$(password_env_name)"
 eval "pw=\${$pw_env:-}"
 if [ -n "$pw" ]; then
-  echo "Recovery code: set by environment variable $pw_env"
+  printf '%sRecovery code: set by environment variable %s%s\n' "$TXT_DIM" "$pw_env" "$TXT_RESET"
   recovery=""
 else
   info "SSH password of the doorbell. In UniFi Protect, open Settings > System" \
        "(Advanced on some versions) and copy the Recovery Code." \
-       "It is saved in $SECRETS, readable only by the service."
-  recovery="$(ask "Recovery code" "$(secret_get "$pw_env")" secret)"
+       "It is saved in $SECRETS, readable only by the service." \
+       "It is shown in clear here so you can check what you type (personal setup)."
+  recovery="$(ask "Recovery code" "$(secret_get "$pw_env")")"
 fi
 
-echo
-echo "== UniFi =="
+header "UniFi"
 info "How animations and sounds are applied to the doorbell:" \
      "  ipc     recommended. Updates the doorbell in memory, without restarting anything." \
      "          Takes under 2 seconds. Profile validation in Home Assistant needs it." \
@@ -151,7 +180,7 @@ while :; do
   apply_method="$(ask_field "Apply method (ipc/legacy)" ".unifi.apply_method // \"ipc\"" UNIFI_APPLY_METHOD)"
   case "$apply_method" in
     ipc|IPC|legacy) break ;;
-    *) echo "Expected ipc or legacy" >&2 ;;
+    *) err "Expected ipc or legacy" ;;
   esac
 done
 
@@ -179,11 +208,10 @@ if [ -n "$recovery" ]; then
   chown "${PUID:-10001}:${PGID:-10001}" "$SECRETS" 2>/dev/null || true
 fi
 
-echo
-echo "Saved $CONFIG"
+printf '\n%sSaved %s%s\n' "$TXT_OK" "$CONFIG" "$TXT_RESET"
 
 if [ "$(cat /proc/1/comm 2>/dev/null)" = "doorbell-mqtt-u" ]; then
-  echo "The service is already running: restart the container to apply (docker restart <container>)."
+  printf '%sThe service is already running: restart the container to apply (docker restart <container>).%s\n' "$TXT_DIM" "$TXT_RESET"
 else
   echo "The service will start automatically."
 fi
