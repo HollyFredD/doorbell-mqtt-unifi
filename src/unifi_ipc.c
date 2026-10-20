@@ -43,8 +43,8 @@ static bool parse_custom_animations(cJSON *arr, profile_state_t *state) {
             anim->loop = false;
         }
 
-        anim->file = strdup(json_get_string(item, "file"));
-        anim->gui_id = strdup(json_get_string(item, "guiId"));
+        anim->file = json_strdup(item, "file");
+        anim->gui_id = json_strdup(item, "guiId");
     }
 
     return true;
@@ -80,8 +80,8 @@ static bool parse_custom_sounds(cJSON *arr, profile_state_t *state) {
             sound->enable = false;
         }
 
-        sound->file = strdup(json_get_string(item, "file"));
-        sound->sound_state_name = strdup(json_get_string(item, "soundStateName"));
+        sound->file = json_strdup(item, "file");
+        sound->sound_state_name = json_strdup(item, "soundStateName");
     }
 
     return true;

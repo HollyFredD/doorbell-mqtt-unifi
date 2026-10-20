@@ -2,6 +2,9 @@
 #include "third_party/unity/unity.h"
 #include "third_party/unity/unity_internals.h"
 #include "utils.h"
+#include "utils_json.h"
+
+#include <stdlib.h>
 
 void setUp(void) {
 }
@@ -57,7 +60,17 @@ void test_is_invalid_file_image(void) {
     TEST_ASSERT_EQUAL(ERROR_FILE_TYPE_INVALID, err.error_code);
 }
 
+void test_json_strdup_missing_key_returns_null(void) {
+    cJSON *obj = cJSON_Parse("{\"file\":\"a.png\",\"count\":1}");
+    char *file = json_strdup(obj, "file");
 
+    TEST_ASSERT_EQUAL_STRING("a.png", file);
+    TEST_ASSERT_NULL(json_strdup(obj, "guiId"));
+    TEST_ASSERT_NULL(json_strdup(obj, "count"));
+
+    free(file);
+    cJSON_Delete(obj);
+}
 
 int main(void) {
     UNITY_BEGIN();
@@ -69,6 +82,7 @@ int main(void) {
     RUN_TEST(test_is_valid_file_image);
     RUN_TEST(test_is_valid_file_sound);
     RUN_TEST(test_is_invalid_file_image);
+    RUN_TEST(test_json_strdup_missing_key_returns_null);
 
     UNITY_END();
 }

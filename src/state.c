@@ -231,7 +231,7 @@ int state_load(applied_state_t *state, const char *state_dir) {
 
     int rc = ERROR_NONE;
 
-    state->profile_name = strdup(json_get_string(root, "profileName"));
+    state->profile_name = json_strdup(root, "profileName");
 
     if (!state->profile_name || state->profile_name[0] == '\0') {
         rc = ERROR_STATE_PARSE_FAILED;

@@ -13,6 +13,11 @@ const char *json_get_string(cJSON *obj, const char *key) {
     return (cJSON_IsString(value) && value->valuestring) ? value->valuestring : NULL;
 }
 
+char *json_strdup(cJSON *obj, const char *key) {
+    const char *value = json_get_string(obj, key);
+    return value ? strdup(value) : NULL;
+}
+
 char *json_strdup_normalized(cJSON *obj, const char *key) {
     if (!obj || !key) {
         return NULL;
