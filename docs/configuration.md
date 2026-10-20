@@ -28,7 +28,7 @@ Environment variables override JSON values for supported settings. Configuration
   "ssh": {
     "host": "",
     "port": 22,
-    "user": "ubnt",
+    "username": "ubnt",
     "password_env": "UNIFI_PROTECT_RECOVERY_CODE"
   },
   "unifi": {
@@ -257,7 +257,7 @@ SSH port of the doorbell.
 
 ### ssh.username
 
-Env: `SSH_USER`  
+Env: `SSH_USERNAME`  
 Default: `ubnt`
 
 SSH username.
