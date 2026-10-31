@@ -156,6 +156,57 @@ pub fn apply_custom(ctx: &Ctx, payload: &str) {
     ctx.ha.set_state("idle");
 }
 
+/// Applies an explicit profile directory (used by the embedded web UI).
+/// Unlike `apply_custom` the directory is resolved against the configured
+/// profile repository, so it works from any working directory.
+pub fn apply_profile_dir(ctx: &Ctx, dir: &Path, dir_label: &str) {
+    ctx.ha.set_state("uploading");
+
+    if !utils::directory_exists(dir) {
+        ctx.ha.set_error(
+            ERROR_PROFILE_NOT_FOUND,
+            &format!("Profile '{dir_label}' not found"),
+        );
+        ctx.ha.set_state("idle");
+        return;
+    }
+
+    if apply_profile(
+        ctx,
+        dir,
+        &format!("Error loading profile.json for '{dir_label}'"),
+        dir_label,
+        false,
+    ) {
+        ctx.ha.set_last_applied_profile(dir_label);
+        ctx.ha.set_preset_selected("none");
+        ctx.ha.set_custom_directory(dir_label);
+    }
+
+    ctx.ha.set_state("idle");
+}
+
+/// Plays an ad-hoc sound file from the sounds directory (used by the embedded web UI).
+pub fn play_sound_file(ctx: &Ctx, file: &str, volume: i32) {
+    ctx.ha.set_state("uploading");
+
+    let sfx = crate::config::SfxPreset {
+        name: file.to_string(),
+        key_name: file.to_string(),
+        file: file.to_string(),
+        volume,
+    };
+
+    if let Some(session) = connect(ctx) {
+        match remote::sfx_upload_and_play(&session, &sfx, &ctx.sounds_dir) {
+            Ok(()) => ctx.ha.clear_error(),
+            Err(e) => ctx.ha.app_err(&e),
+        }
+    }
+
+    ctx.ha.set_state("idle");
+}
+
 pub fn test_config(ctx: &Ctx, payload: &str) {
     if payload.is_empty() {
         return;

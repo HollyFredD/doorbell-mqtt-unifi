@@ -112,6 +112,12 @@ impl Ha {
         self.publish_error(ERROR_NONE, "");
     }
 
+    /// Last error code and message (0/empty when the last operation succeeded).
+    pub fn last_error(&self) -> (i32, String) {
+        let g = self.last_error.lock().unwrap_or_else(|e| e.into_inner());
+        (g.0, g.1.clone())
+    }
+
     pub fn set_last_applied_profile(&self, profile: &str) {
         self.publish_sub("last_applied_profile", profile);
     }

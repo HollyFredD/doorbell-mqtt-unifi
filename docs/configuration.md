@@ -433,6 +433,34 @@ When a preset is selected:
 5. The temporary file is removed.
 
 
+## Web Interface
+
+The service embeds a web configuration interface served by default on **port 8080**
+(mobile-friendly, no dependencies, no authentication — keep it on a trusted LAN).
+
+### Web interface environment variables
+
+| Variable               | Default   | Description                                            |
+|------------------------|-----------|--------------------------------------------------------|
+| `DOORBELL_WEB_ENABLED` | `1`       | Set to `0` to disable the web interface.               |
+| `DOORBELL_WEB_BIND`    | `0.0.0.0` | Address to bind (use `127.0.0.1` for localhost only).  |
+| `DOORBELL_WEB_PORT`    | `8080`    | TCP port for the interface.                            |
+
+The web interface lets you:
+
+- View the current status (last applied profile, apply method, version).
+- Manage **profiles**: create, upload the welcome image (PNG) and ring sound
+  (OGG/WAV), set playback options (loop, count, duration, volume, repetitions),
+  preview, and apply directly to the doorbell.
+- Manage **ad-hoc sounds (SFX)**: default volume, play individual sounds, upload
+  files to the sounds directory.
+- Edit the full `config.json` via friendly forms (MQTT, SSH, apply method, presets,
+  SFX presets).
+
+API endpoints are available under `/api/` (`GET /api/bootstrap` returns the current
+state in one call). Doorbell actions are serialized and reported through the same
+`status`/`last_error` MQTT topics as Home Assistant commands.
+
 ## Quick “what must I set?” checklist
 
 Most users only need:

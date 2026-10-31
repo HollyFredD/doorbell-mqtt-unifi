@@ -8,6 +8,7 @@ description = "Bridges UniFi Protect G4 Doorbell Pro devices with MQTT and Home 
 repository = "https://github.com/ChrisHansenTech/doorbell-mqtt-unifi"
 
 [dependencies]
+axum = { version = "0.8", features = ["multipart"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 md-5 = "0.10"
 rumqttc = "0.24"
@@ -15,6 +16,7 @@ serde_json = { version = "1", features = ["preserve_order"] }
 sha2 = "0.10"
 signal-hook = "0.3"
 ssh2 = "0.9"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync"] }
 
 [profile.release]
 strip = true

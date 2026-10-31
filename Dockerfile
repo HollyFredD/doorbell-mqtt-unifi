@@ -5,6 +5,7 @@ WORKDIR /build
 
 COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
+COPY web/ ./web/
 
 ARG APP_VERSION=0.0.0-dev
 RUN APP_VERSION="${APP_VERSION}" cargo build --release --locked

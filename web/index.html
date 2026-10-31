@@ -1,0 +1,1007 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b12">
+<title>Sonnette — Configuration</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23070b12'/%3E%3Cpath d='M6.5 9a5.5 5.5 0 0 1 11 0c0 6.4 2.7 8.2 2.7 8.2H3.8S6.5 15.4 6.5 9Z' fill='%2334e0c4'/%3E%3Ccircle cx='12' cy='19.5' r='1.8' fill='%2334e0c4'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#070b12;
+    --bg-soft:#0b1119;
+    --card:#101826;
+    --card-2:#0d1520;
+    --line:rgba(255,255,255,.07);
+    --line-strong:rgba(148,163,184,.16);
+    --text:#e7edf5;
+    --text-dim:#93a1b5;
+    --text-faint:#5f6f88;
+    --accent:#34e0c4;
+    --accent-2:#38bdf8;
+    --grad:linear-gradient(135deg,#34e0c4,#38bdf8);
+    --ok:#34d399;
+    --warn:#fbbf24;
+    --danger:#f87171;
+    --r-lg:20px;
+    --r-md:14px;
+    --r-sm:10px;
+    --shadow:0 18px 50px rgba(0,0,0,.5);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(640px 320px at 8% -4%, rgba(56,189,248,.13), transparent 62%),
+      radial-gradient(720px 360px at 96% -2%, rgba(52,224,196,.11), transparent 62%),
+      radial-gradient(520px 520px at 50% 120%, rgba(56,189,248,.05), transparent 70%);
+  }
+  button{font-family:inherit;cursor:pointer;color:inherit}
+  input,select{font-family:inherit;color:inherit}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#243044;border-radius:8px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  .app{display:flex;min-height:100vh}
+
+  /* ---- Sidebar ---- */
+  .sidebar{
+    width:248px;flex:none;padding:22px 16px;position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line);
+    background:rgba(9,14,23,.6);backdrop-filter:blur(14px);
+    z-index:30;
+  }
+  .brand{display:flex;align-items:center;gap:12px;padding:6px 10px 20px}
+  .brand-mark{
+    width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;
+    background:var(--grad);color:#04202a;box-shadow:0 8px 24px rgba(52,224,196,.35);
+  }
+  .brand h1{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+  .brand p{font-size:.72rem;color:var(--text-faint);font-weight:500}
+  .nav{display:flex;flex-direction:column;gap:4px;flex:1}
+  .nav-item{
+    display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;
+    border:none;background:transparent;color:var(--text-dim);font-size:.92rem;font-weight:600;
+    text-align:left;transition:.15s;position:relative;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+  .nav-item.active{background:rgba(52,224,196,.1);color:var(--accent)}
+  .nav-item.active::before{
+    content:'';position:absolute;left:-16px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--grad);
+  }
+  .nav-item svg{width:20px;height:20px;flex:none}
+  .sidebar-foot{padding:12px 10px 4px;font-size:.74rem;color:var(--text-faint);border-top:1px solid var(--line)}
+  .sidebar-foot .ver{font-weight:600;color:var(--text-dim)}
+
+  /* ---- Main ---- */
+  .main{flex:1;min-width:0;padding:26px clamp(18px,4vw,54px) 90px;max-width:1180px;margin:0 auto}
+  .topbar{
+    display:flex;align-items:center;gap:14px;margin-bottom:26px;
+    flex-wrap:wrap;justify-content:space-between;
+  }
+  .topbar .title h2{font-size:1.55rem;font-weight:750;letter-spacing:-.02em}
+  .topbar .title p{color:var(--text-dim);font-size:.88rem;margin-top:2px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+    background:rgba(56,189,248,.09);border:1px solid rgba(56,189,248,.25);
+    color:var(--accent-2);font-size:.78rem;font-weight:700;
+  }
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 8px var(--accent-2)}
+
+  .view{display:none;animation:fade .28s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---- Cards ---- */
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;margin-bottom:18px;
+  }
+  .card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .card-head .ic{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;
+    background:rgba(52,224,196,.1);color:var(--accent);
+  }
+  .card-head .ic svg{width:18px;height:18px}
+  .card-head h3{font-size:1.02rem;font-weight:700}
+  .card-head .sub{font-size:.78rem;color:var(--text-faint);font-weight:500}
+
+  .grid{display:grid;gap:18px}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:1080px){.grid-3{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}}
+  @media(max-width:640px){.grid-3{grid-template-columns:1fr}}
+
+  /* ---- Buttons ---- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+    border:1px solid var(--line-strong);background:var(--card-2);color:var(--text);
+    border-radius:12px;padding:.6rem 1rem;font-size:.88rem;font-weight:650;
+    transition:.16s;white-space:nowrap;
+  }
+  .btn:hover{border-color:rgba(148,163,184,.38);background:#172132;transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{opacity:.5;pointer-events:none}
+  .btn svg{width:16px;height:16px}
+  .btn-primary{background:var(--grad);color:#03201f;border:none;box-shadow:0 8px 26px rgba(52,224,196,.28)}
+  .btn-primary:hover{background:var(--grad);filter:brightness(1.08)}
+  .btn-danger{color:var(--danger);border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.06)}
+  .btn-danger:hover{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.12)}
+  .btn-ghost{background:transparent}
+  .btn-sm{padding:.42rem .7rem;font-size:.8rem;border-radius:10px}
+  .btn-block{width:100%}
+  .btn .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  /* ---- Badges ---- */
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+    font-size:.72rem;font-weight:700;
+  }
+  .badge.ok{background:rgba(52,211,153,.12);color:var(--ok)}
+  .badge.warn{background:rgba(251,191,36,.12);color:var(--warn)}
+  .badge.dim{background:rgba(148,163,184,.12);color:var(--text-dim)}
+
+  /* ---- Home status ---- */
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.stat-grid{grid-template-columns:1fr 1fr}}
+  .stat{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015));
+    border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;
+  }
+  .stat .k{font-size:.72rem;color:var(--text-faint);font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+  .stat .v{font-size:1.05rem;font-weight:700;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stat .v.mono{font-variant-numeric:tabular-nums}
+
+  .quick-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+  /* ---- Profile cards ---- */
+  .pcard{overflow:hidden;display:flex;flex-direction:column;transition:.18s}
+  .pcard:hover{transform:translateY(-3px);border-color:var(--line-strong);box-shadow:var(--shadow)}
+  .pthumb{
+    height:150px;background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(52,224,196,.05));
+    display:grid;place-items:center;position:relative;border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .pthumb img{width:100%;height:100%;object-fit:cover}
+  .pthumb .placeholder{text-align:center;color:var(--text-faint)}
+  .pthumb .placeholder svg{width:34px;height:34px;margin:0 auto 6px;opacity:.6}
+  .pcard .pbody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .pcard .pname{font-weight:750;font-size:.98rem;letter-spacing:-.01em}
+  .pcard .pmeta{font-size:.78rem;color:var(--text-dim)}
+  .pcard .pbadges{display:flex;gap:6px;flex-wrap:wrap}
+  .pcard .pactions{display:flex;gap:8px;margin-top:auto;padding-top:10px}
+  .pcard .pactions .btn{flex:1}
+
+  /* ---- Fields ---- */
+  .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field > label{font-size:.8rem;font-weight:650;color:var(--text-dim)}
+  .field input[type=text],.field input[type=password],.field input[type=number],.field select{
+    width:100%;background:#0a1220;border:1px solid var(--line-strong);border-radius:10px;
+    padding:.6rem .75rem;color:var(--text);font-size:.92rem;transition:.15s;
+  }
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(52,224,196,.14)}
+  .field .hint{font-size:.74rem;color:var(--text-faint)}
+  .row-toggle{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02);
+  }
+  .row-toggle .lbl{font-size:.88rem;font-weight:600}
+  .row-toggle .hint{font-size:.74rem;color:var(--text-faint)}
+  .switch{
+    position:relative;width:46px;height:27px;border-radius:999px;flex:none;border:none;
+    background:rgba(148,163,184,.2);transition:.2s;
+  }
+  .switch::after{
+    content:'';position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;
+    background:#cbd5e1;transition:.2s;
+  }
+  .switch.on{background:var(--grad)}
+  .switch.on::after{background:#fff;left:22px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+
+  .progress-lbl{display:flex;justify-content:space-between;font-size:.8rem;font-weight:650}
+  input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:999px;background:rgba(148,163,184,.2);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid #0a1220;box-shadow:0 0 0 2px rgba(52,224,196,.4);cursor:pointer}
+
+  /* ---- Modal ---- */
+  .backdrop{
+    position:fixed;inset:0;background:rgba(3,6,11,.7);backdrop-filter:blur(8px);
+    display:none;align-items:flex-end;justify-content:center;z-index:100;
+  }
+  .backdrop.open{display:flex}
+  .modal{
+    background:linear-gradient(180deg,#101826,#0b1119);border:1px solid var(--line-strong);
+    border-radius:var(--r-lg);width:min(760px,100%);max-height:92vh;overflow-y:auto;
+    box-shadow:var(--shadow);animation:rise .26s ease;
+  }
+  @media(min-width:641px){.backdrop{align-items:center}.modal{margin:24px}}
+  @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .modal-head{position:sticky;top:0;display:flex;align-items:center;gap:12px;padding:18px 22px;
+    background:rgba(13,21,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:5}
+  .modal-head h3{font-size:1.12rem;font-weight:750;flex:1}
+  .modal-x{width:34px;height:34px;border-radius:10px;border:none;background:rgba(255,255,255,.05);color:var(--text-dim);display:grid;place-items:center}
+  .modal-x:hover{background:rgba(255,255,255,.1);color:var(--text)}
+  .modal-body{padding:22px;display:flex;flex-direction:column;gap:20px}
+  .modal-foot{position:sticky;bottom:0;display:flex;gap:10px;justify-content:flex-end;padding:16px 22px;
+    background:rgba(13,21,32,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);flex-wrap:wrap}
+
+  .asset-box{
+    border:1px dashed var(--line-strong);border-radius:var(--r-md);padding:18px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:10px;transition:.15s;background:rgba(255,255,255,.015);
+  }
+  .asset-box:hover{border-color:var(--accent);background:rgba(52,224,196,.03)}
+  .asset-box svg{width:26px;height:26px;color:var(--text-faint)}
+  .asset-box .file-name{font-size:.84rem;font-weight:650;color:var(--text-dim);word-break:break-all}
+  .upload-row{display:flex;gap:12px;align-items:center}
+
+  /* ---- Toasts ---- */
+  .toasts{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(480px,92vw)}
+  @media(min-width:641px){.toasts{bottom:26px}}
+  .toast{
+    display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:14px;font-size:.88rem;font-weight:600;
+    background:#131c2c;border:1px solid var(--line-strong);box-shadow:var(--shadow);pointer-events:auto;
+    animation:toastin .24s ease;max-width:100%;
+  }
+  .toast svg{width:18px;height:18px;flex:none}
+  .toast.success svg{color:var(--ok)}
+  .toast.error svg{color:var(--danger)}
+  .toast.info svg{color:var(--accent-2)}
+  .toast.out{opacity:0;transform:translateY(6px);transition:.3s}
+  @keyframes toastin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---- Misc ---- */
+  .section-title{font-size:.95rem;font-weight:750;color:var(--text-dim);margin:4px 0 12px;display:flex;align-items:center;gap:8px}
+  .banner{
+    display:flex;gap:12px;align-items:flex-start;border-radius:var(--r-md);padding:14px 16px;margin-bottom:18px;
+    background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.28);color:#fcd34d;font-size:.87rem;
+  }
+  .banner svg{width:20px;height:20px;flex:none;margin-top:1px}
+  .empty{text-align:center;padding:40px 20px;color:var(--text-faint)}
+  .empty svg{width:44px;height:44px;opacity:.4;margin:0 auto 12px}
+  .file-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+  .file-chip .nm{flex:1;font-size:.87rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row-list{display:flex;flex-direction:column;gap:8px}
+  details.sec{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:4px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}
+  details.sec summary{
+    cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:15px 18px;font-weight:700;font-size:.98rem;
+  }
+  details.sec summary::-webkit-details-marker{display:none}
+  details.sec summary .chev{margin-left:auto;transition:.2s;color:var(--text-faint)}
+  details.sec[open] summary .chev{transform:rotate(180deg)}
+  details.sec .inner{padding:6px 18px 18px}
+
+  /* ---- Mobile bottom nav ---- */
+  .mobile-nav{
+    display:none;position:fixed;bottom:0;left:0;right:0;z-index:60;
+    background:rgba(9,14,23,.92);backdrop-filter:blur(16px);border-top:1px solid var(--line);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+  .mobile-nav .mn-i{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;
+    border:none;background:transparent;color:var(--text-faint);font-size:.66rem;font-weight:700;
+  }
+  .mobile-nav .mn-i svg{width:22px;height:22px}
+  .mobile-nav .mn-i.active{color:var(--accent)}
+
+  .boot{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:300}
+  .boot.hide{display:none}
+  .spinner{width:44px;height:44px;border:3px solid rgba(148,163,184,.2);border-top-color:var(--accent);border-radius:50%;animation:rot .8s linear infinite}
+
+  @media(max-width:860px){
+    .sidebar{display:none}
+    .mobile-nav{display:flex}
+  }
+  code{background:rgba(148,163,184,.12);padding:2px 6px;border-radius:6px;font-size:.82em}
+  a{color:var(--accent-2)}
+</style>
+</head>
+<body>
+
+<div class="boot" id="boot"><div class="spinner"></div></div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <div>
+        <h1>Mon Carillon</h1>
+        <p id="brand-inst">Doorbell MQTT UniFi</p>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>Accueil</button>
+      <button class="nav-item" data-tab="profiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L6 21"/></svg>Profils</button>
+      <button class="nav-item" data-tab="sounds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Sons</button>
+      <button class="nav-item" data-tab="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>Configuration</button>
+    </nav>
+    <div class="sidebar-foot">
+      <span class="ver" id="side-ver">—</span><br>Version du service
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="title">
+        <h2 id="page-title">Accueil</h2>
+        <p id="page-sub">Tableau de bord de votre sonnette</p>
+      </div>
+      <span class="chip" id="instance-chip"><span class="dot"></span><span id="chip-label">—</span></span>
+    </div>
+
+    <!-- HOME -->
+    <section class="view active" id="view-home">
+      <div class="stat-grid" id="stats"></div>
+
+      <div class="card">
+        <div class="card-head"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
+          <div><h3>Actions rapides</h3><div class="sub">Appliquent les réglages directement sur la sonnette</div></div>
+        </div>
+        <div class="quick-actions" id="quick-actions"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v5h5"/><path d="M20 11a8 8 0 0 0-14-5L3 12"/><path d="M21 17v-5h-5"/><path d="M4 13a8 8 0 0 0 14 5l3-3"/></svg></div>
+          <div><h3>À propos</h3><div class="sub">Chemins et détail de l'installation</div></div>
+        </div>
+        <div id="about-body"></div>
+      </div>
+    </section>
+
+    <!-- PROFILES -->
+    <section class="view" id="view-profiles">
+      <div id="profiles-grid"></div>
+    </section>
+
+    <!-- SOUNDS -->
+    <section class="view" id="view-sounds">
+      <div class="card">
+        <div class="card-head"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+          <div><h3>Effets sonores (SFX)</h3><div class="sub">Joués ponctuellement, sans modifier l'anneau de la sonnette</div></div>
+        </div>
+        <div id="sfx-body"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 3 .2"/><path d="M21 12v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6"/><path d="M4 12a6 6 0 0 1 12 0v2"/></svg></div>
+          <div><h3>Bibliothèque de sons</h3><div class="sub">Fichiers disponibles dans le dossier <code id="sounds-path">/sounds</code></div></div>
+        </div>
+        <div class="upload-row" style="margin-bottom:14px">
+          <button class="btn btn-primary" id="upload-sound-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>Ajouter un son</button>
+          <input type="file" id="upload-sound-input" accept=".ogg,.wav" style="display:none">
+          <span style="font-size:.78rem;color:var(--text-faint)">.ogg ou .wav — inférieur à 1 Mo</span>
+        </div>
+        <div class="row-list" id="sounds-list"></div>
+      </div>
+    </section>
+
+    <!-- CONFIG -->
+    <section class="view" id="view-config">
+      <div class="banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+        <div>Les modifications de la configuration ne sont <strong>actives qu'après redémarrage du conteneur</strong>. Les valeurs définies par variables d'environnement prennent le dessus.</div>
+      </div>
+      <div id="config-form"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-primary btn-block" id="save-config-btn" style="max-width:420px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>Enregistrer la configuration</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="mobile-nav" id="mn">
+  <button class="mn-i active" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>Accueil</button>
+  <button class="mn-i" data-tab="profiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L6 21"/></svg>Profils</button>
+  <button class="mn-i" data-tab="sounds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Sons</button>
+  <button class="mn-i" data-tab="config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>Config</button>
+</nav>
+
+<div class="toasts" id="toasts"></div>
+<div class="backdrop" id="modal">
+  <div class="modal" id="modal-box"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- helpers ---------- */
+const $ = (s)=>document.querySelector(s);
+const esc = (s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const enc = encodeURIComponent;
+const isMobile = ()=>window.innerWidth<=860;
+
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+const ICONS = {
+  play:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>',
+  flask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 18.5A2 2 0 0 0 6.3 22h11.4a2 2 0 0 0 1.8-3.5L14 8V2"/><path d="M8 2h8"/><path d="M7 15h10"/></svg>',
+  download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
+  upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
+  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L6 21"/></svg>',
+  music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  folder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.5 3.3A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>',
+  volume:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+};
+function icon(name){return ICONS[name]||'';}
+
+/* ---------- API ---------- */
+let state=null;
+async function api(path, opts={}){
+  const r = await fetch(path, opts);
+  let data=null;
+  try{ data = await r.json(); }catch(e){}
+  if(!r.ok){
+    const err = new Error(data?.error || ('Erreur HTTP '+r.status));
+    err.code = data?.code;
+    throw err;
+  }
+  return data;
+}
+
+/* French labels for doorbell action error codes (otherwise backend messages are English). */
+const ERR_MAP = {
+  2001:'Impossible de joindre le broker MQTT',
+  3001:'Impossible de se connecter à la sonnette (SSH)',
+  3002:'Authentification SSH refusée',
+  3100:'Commande échouée sur la sonnette',
+  3101:'La sonnette ne répond plus (délai dépassé)',
+  3200:'Échec du transfert de fichier (SCP)',
+  4001:'Profil introuvable',
+  4002:'Profil invalide',
+  4003:'Échec du téléchargement depuis la sonnette',
+  4100:'Échec du chargement du profil',
+  4103:'Échec du transfert du fichier',
+  4200:'Échec de l’application du profil',
+  4205:'Permission refusée en appliquant le profil',
+  4301:'Stockage de la sonnette plein',
+  4400:'Échec de l’effet sonore',
+  4401:'Effet sonore introuvable',
+  4404:'Échec de la lecture du son',
+  5007:'Réponse illisible de la sonnette',
+};
+function humanErr(e){
+  if(e && e.code && ERR_MAP[e.code]) return ERR_MAP[e.code];
+  return (e && e.message) ? e.message : 'Erreur inconnue';
+}
+
+/* ---------- toasts ---------- */
+function toast(msg, type='info'){
+  const wrap = $('#toasts');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.innerHTML = '<span>'+icon(type==='success'?'check':type==='error'?'alert':'info')+'</span><span>'+esc(msg)+'</span>';
+  wrap.appendChild(t);
+  setTimeout(()=>{t.classList.add('out'); setTimeout(()=>t.remove(),320);}, 3800);
+}
+
+/* ---------- modals & confirm ---------- */
+function openModal(html){
+  const b=$('#modal'); $('#modal-box').innerHTML = html; b.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  $('#modal').classList.remove('open'); document.body.style.overflow='';
+}
+function confirmDialog(title, msg, onYes, danger=true){
+  openModal(
+    '<div class="modal-head"><h3>'+esc(title)+'</h3><button class="modal-x" data-close>'+icon('x')+'</button></div>'+
+    '<div class="modal-body"><p style="color:var(--text-dim)">'+esc(msg)+'</p></div>'+
+    '<div class="modal-foot"><button class="btn" data-close>Annuler</button><button class="btn '+(danger?'btn-danger':'btn-primary')+'" id="confirm-yes">'+esc(title)+'</button></div>'
+  );
+  $('#modal').onclick=(e)=>{ if(e.target.dataset.close===''||e.target.id==='modal-box') closeModal(); };
+  $('#confirm-yes').onclick=async()=>{ const res=onYes(); if(res&&res.finally) try{ await res; }catch(e){} if(!res||typeof res.then!=='function') closeModal(); };
+}
+async function promptProfileName(){
+  openModal(
+    '<div class="modal-head"><h3>Nouveau profil</h3><button class="modal-x" data-close>'+icon('x')+'</button></div>'+
+    '<div class="modal-body"><div class="field"><label>Nom du profil</label><input type="text" id="np-name" placeholder="Ex. Halloween, Vacances, Logo…" maxlength="60"><span class="hint">Un dossier sera créé automatiquement (ex. « halloween »).</span></div></div>'+
+    '<div class="modal-foot"><button class="btn" data-close>Annuler</button><button class="btn btn-primary" id="np-create">Créer</button></div>'
+  );
+  $('#modal').onclick=(e)=>{ if(e.target.dataset.close===''||e.target.id==='modal-box') closeModal(); };
+  const go=async()=>{
+    const val=$('#np-name').value.trim();
+    if(!val){ toast('Indiquez un nom de profil','error'); return; }
+    const btn=$('#np-create'); btn.disabled=true; btn.innerHTML=btn.innerHTML.replace('Créer','<span class="spin"></span>');
+    try{ const p=await api('api/profiles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:val})});
+      state.profiles.push(p); state.profiles.sort((a,b)=>a.name.localeCompare(b.name));
+      closeModal(); renderProfiles(); toast('Profil « '+p.name+' » créé','success');
+    }catch(e){ toast(humanErr(e),'error'); btn.disabled=false; btn.innerHTML='Créer'; }
+  };
+  $('#np-create').onclick=go;
+  $('#np-name').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  setTimeout(()=>$('#np-name').focus(),40);
+}
+
+/* ---------- tabs ---------- */
+function setTab(name){
+  const titles={home:['Accueil','Tableau de bord de votre sonnette'],profiles:['Profils','Image d’animation et sonnerie'],sounds:['Sons','Effets sonores ponctuels'],config:['Configuration','Connexions et réglages avancés']};
+  document.querySelectorAll('.nav-item,.mn-i').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+name));
+  $('#page-title').textContent=titles[name][0]; $('#page-sub').textContent=titles[name][1];
+  if(name==='profiles') renderProfiles();
+  if(name==='sounds') renderSounds();
+}
+document.querySelectorAll('.nav-item,.mn-i').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+
+/* ---------- HOME ---------- */
+function fmtTime(ts){ if(!ts) return '—'; return new Date(ts*1000).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function renderHome(){
+  const s=state.status;
+  const method=state.app.applyMethod==='ipc'?'IPC (rapide)':'Héritage (lent)';
+  $('#stats').innerHTML=
+    stat('Instance',esc(state.app.instanceHuman),'')+
+    stat('Méthode',esc(method),'')+
+    stat('Dernier profil', s?esc(s.profileName):'Aucun appliqué', s?({ipc:'ok',legacy:'warn'})[s.applyMethod]||'dim':'dim')+
+    stat('Dernière application', s?fmtTime(s.appliedAt):'—','');
+  $('#quick-actions').innerHTML='';
+  const actions=[
+    ['api/actions/reapply','Réappliquer','refresh','Réapplique le dernier profil appliqué'],
+    ['api/actions/validate','Valider','shield','Compare la sonnette au profil attendu'],
+    ['api/actions/test','Tester','flask','Applique le profil de test sur la sonnette'],
+    ['api/actions/download','Télécharger','download','Récupère les réglages actuels de la sonnette'],
+  ];
+  for(const [path,txt,ic,tip] of actions){
+    const b=document.createElement('button');
+    b.className='btn'; b.innerHTML=icon(ic)+'<span>'+txt+'</span>'; b.title=tip;
+    b.onclick=async()=>{
+      b.disabled=true; const old=b.innerHTML; b.innerHTML=icon(ic)+'<span class="spin"></span>';
+      try{ await api(path,{method:'POST'}); toast(txt+' terminé','success'); }
+      catch(e){ toast(humanErr(e),'error'); }
+      b.disabled=false; b.innerHTML=old;
+    };
+    $('#quick-actions').appendChild(b);
+  }
+  const paths=state.paths||{};
+  $('#about-body').innerHTML=
+    '<div class="form-grid">'+
+      infoRow('Dossier des profils',paths.profilesDir)+
+      infoRow('Dossier des sons',paths.soundsDir)+
+      infoRow('Fichier de configuration',paths.configPath)+
+      infoRow('Version du service',state.app.version)+
+    '</div>';
+}
+function stat(k,v,tone){
+  const cls=tone?('badge '+tone):'';
+  return '<div class="stat"><div class="k">'+esc(k)+'</div><div class="v'+(k==='Instance'?'':' mono')+'" title="'+esc(v)+'">'+esc(v)+
+    (tone?'&nbsp;&nbsp;<span class="'+cls+'" style="font-size:.68rem;vertical-align:middle">'+tone+'</span>':'')+'</div></div>';
+}
+function infoRow(k,v){ return '<div><div style="font-size:.78rem;color:var(--text-faint);font-weight:650">'+esc(k)+'</div><div style="font-size:.9rem;font-weight:600;word-break:break-all">'+esc(v)+'</div></div>'; }
+
+/* ---------- PROFILES ---------- */
+function profileFromState(name){ return state.profiles.find(p=>p.name===name); }
+function renderProfiles(){
+  const g=$('#profiles-grid');
+  if(!state.profiles.length){
+    g.innerHTML='<div class="card" style="background:transparent;border-style:dashed"><div class="empty">'+icon('image')+
+      '<div style="font-weight:700;color:var(--text)">Aucun profil pour le moment</div>'+
+      '<p style="margin:6px 0 16px">Créez un profil puis ajoutez une image d’animation et une sonnerie.</p>'+
+      '<button class="btn btn-primary" data-new-profile>'+icon('plus')+'Créer un profil</button></div></div>';
+    g.querySelector('[data-new-profile]').onclick=promptProfileName;
+    return;
+  }
+  const top=document.createElement('div');
+  top.style.cssText='display:flex;justify-content:flex-end;margin-bottom:16px';
+  const nb=document.createElement('button'); nb.className='btn btn-primary'; nb.innerHTML=icon('plus')+'Nouveau profil'; nb.onclick=promptProfileName;
+  top.appendChild(nb); g.innerHTML=''; g.appendChild(top);
+
+  const grid=document.createElement('div'); grid.className='grid grid-3';
+  for(const p of state.profiles){
+    const card=document.createElement('div'); card.className='card pcard';
+    card.innerHTML=
+      ('<div class="pthumb">'+(p.hasImage?'<img src="api/profiles/'+enc(p.name)+'/image" alt="" loading="lazy">':'<div class="placeholder">'+icon('image')+'Aucune image</div>')+'</div>')+
+      '<div class="pbody">'+
+        '<div class="pname">'+esc(p.name)+'</div>'+
+        '<div class="pmeta">'+
+          (p.welcome.enabled&&p.welcome.file?'Image&nbsp;: '+esc(p.welcome.file)+'<br>':'')+
+          (p.ringButton.enabled&&p.ringButton.file?'Son&nbsp;: '+esc(p.ringButton.file):'')+
+        '</div>'+
+        '<div class="pbadges">'+
+          '<span class="badge '+(p.hasImage?'ok':'dim')+'">'+esc(p.hasImage?'Image OK':'Sans image')+'</span>'+
+          '<span class="badge '+(p.hasSound?'ok':'dim')+'">'+esc(p.hasSound?'Son OK':'Sans son')+'</span>'+
+        '</div>'+
+        '<div class="pactions">'+
+          '<button class="btn btn-sm" data-edit="'+esc(p.name)+'">Modifier</button>'+
+          '<button class="btn btn-sm btn-primary" data-apply="'+esc(p.name)+'">'+icon('bell')+'Appliquer</button>'+
+        '</div>'+
+      '</div>';
+    card.querySelector('[data-edit]').onclick=()=>openProfileEditor(p.name);
+    card.querySelector('[data-apply]').onclick=()=>applyProfile(p.name, card.querySelector('[data-apply]'));
+    grid.appendChild(card);
+  }
+  g.appendChild(grid);
+}
+
+async function applyProfile(name, btn){
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('bell')+'<span class="spin"></span>';
+  try{ await api('api/profiles/'+enc(name)+'/apply',{method:'POST'}); toast('Profil « '+name+' » appliqué sur la sonnette','success'); }
+  catch(e){ toast(humanErr(e),'error'); }
+  btn.disabled=false; btn.innerHTML=old;
+}
+
+function switchBtn(el, on){ el.classList.toggle('on', on); el.setAttribute('aria-checked', on); }
+
+function openProfileEditor(name){
+  const p=profileFromState(name); if(!p) return;
+  const audioHtml='<audio data-src="api/profiles/'+enc(name)+'/sound" style="display:none"></audio>';
+  openModal(
+    '<div class="modal-head"><h3>'+esc(p.name)+'</h3>'+
+      '<span class="badge dim" style="margin-right:auto">profile.json</span>'+
+      '<button class="modal-x" data-close>'+icon('x')+'</button></div>'+
+    '<div class="modal-body">'+audioHtml+
+
+      /* Animation */
+      '<div class="section-title">'+icon('image')+'Animation d’accueil (image)</div>'+
+      '<div class="asset-box" id="anim-preview">'+
+        (p.hasImage?'<img src="api/profiles/'+enc(name)+'/image?v='+Date.now()+'" alt="" style="max-height:130px;border-radius:8px">':'<div style="color:var(--text-faint)">'+icon('image')+'Aucune image</div>')+
+        '<div class="file-name" id="anim-file">'+ (p.welcome.file?esc(p.welcome.file):'—') +'</div>'+
+      '</div>'+
+      '<div class="row-toggle" style="margin-top:12px"><div><div class="lbl">Affichée sur l’écran</div><div class="hint">Active la séquence d’images lors de l’accueil</div></div>'+
+      '<button class="switch'+(p.welcome.enabled?' on':'')+'" id="anim-enable" role="switch"></button></div>'+
+      '<div class="form-grid" style="margin-top:14px">'+
+        fieldNum('count','Images (frames)', p.welcome.count, 1, 2000)+
+        fieldNum('durationMs','Durée totale (ms)', p.welcome.durationMs, 0, 60000)+
+      '</div>'+
+      '<div class="row-toggle" style="margin-top:10px"><div><div class="lbl">Boucle</div><div class="hint">Recommence l’animation en continu</div></div>'+
+      '<button class="switch'+(p.welcome.loop?' on':'')+'" id="anim-loop" role="switch"></button></div>'+
+      '<button class="btn btn-block" style="margin-top:14px" id="anim-upload">'+icon('upload')+'Importer une image (PNG)</button>'+
+      '<input type="file" id="anim-file-input" accept=".png" style="display:none">'+
+
+      '<hr style="border:none;border-top:1px solid var(--line);margin:6px 0">'+
+
+      /* Sonnerie */
+      '<div class="section-title">'+icon('music')+'Sonnerie (bouton)</div>'+
+      '<div class="file-chip" id="ring-row"><div style="color:var(--text-faint)">'+icon('music')+'</div><div class="nm" id="ring-file">'+(p.ringButton.file?esc(p.ringButton.file):'Aucun son')+'</div>'+
+        (p.hasSound?'<button class="btn btn-sm" id="ring-preview">'+icon('play')+'Écouter</button>':'')+
+      '</div>'+
+      '<div class="row-toggle" style="margin-top:12px"><div><div class="lbl">Sonnerie activée</div><div class="hint">Jouée à chaque pression du bouton</div></div>'+
+      '<button class="switch'+(p.ringButton.enabled?' on':'')+'" id="ring-enable" role="switch"></button></div>'+
+      '<div class="form-grid" style="margin-top:14px">'+
+        volField('volume','Volume', p.ringButton.volume)+
+        fieldNum('repeatTimes','Répétitions', p.ringButton.repeatTimes, 1, 20)+
+      '</div>'+
+      '<button class="btn btn-block" style="margin-top:14px" id="ring-upload">'+icon('upload')+'Importer un son (OGG / WAV)</button>'+
+      '<input type="file" id="ring-file-input" accept=".ogg,.wav" style="display:none">'+
+    '</div>'+
+    '<div class="modal-foot">'+
+      '<button class="btn btn-danger" id="prof-delete">'+icon('trash')+'Supprimer</button>'+
+      '<button class="btn" id="prof-cancel">Annuler</button>'+
+      '<button class="btn btn-primary" id="prof-save">'+icon('check')+'Enregistrer</button>'+
+      '<button class="btn btn-primary" id="prof-apply" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#1a0d00;box-shadow:0 8px 26px rgba(249,115,22,.25)">'+icon('bell')+'Appliquer sur la sonnette</button>'+
+    '</div>'
+  );
+  const b=$('#modal'); const bx=$('#modal-box');
+  b.onclick=(e)=>{ if(e.target.dataset.close===''||e.target.id==='modal-box') closeModal(); };
+  $('#prof-cancel').onclick=closeModal;
+  $('#prof-delete').onclick=()=>{
+    closeModal();
+    confirmDialog('Supprimer','Supprimer définitivement le profil « '+name+' » ainsi que ses fichiers ?', async()=>{
+      try{ await api('api/profiles/'+enc(name),{method:'DELETE'});
+        state.profiles=state.profiles.filter(x=>x.name!==name);
+        renderProfiles(); toast('Profil supprimé','success');
+      }catch(e){ toast(humanErr(e),'error'); }
+    });
+  };
+
+  /* toggles */
+  switchBtn($('#anim-enable'),p.welcome.enabled); switchBtn($('#anim-loop'),p.welcome.loop); switchBtn($('#ring-enable'),p.ringButton.enabled);
+  $('#anim-enable').onclick=()=>switchBtn($('#anim-enable'));  // lazy state read on save
+  $('#anim-loop').onclick=()=>switchBtn($('#anim-loop'));
+  $('#ring-enable').onclick=()=>switchBtn($('#ring-enable'));
+
+  /* volume slider live label */
+  $('#volume').addEventListener('input',e=>$('#volume-t').textContent=e.target.value+' %');
+
+  /* preview play */
+  const au=bx.querySelector('audio');
+  const pp=$('#ring-preview'); if(pp) pp.onclick=()=>{ au.src=au.dataset.src; au.play().catch(()=>toast('Aperçu indisponible','error')); };
+
+  /* upload */
+  const doUp=(input,kind)=>{
+    input.onchange=async()=>{
+      const f=input.files[0]; if(!f) return;
+      const btn=kind==='animation'?$('#anim-upload'):$('#ring-upload');
+      btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('upload')+'<span class="spin"></span>';
+      try{
+        const fd=new FormData(); fd.append('kind', kind==='animation'?'image':'sound'); fd.append('file',f);
+        const p=await api('api/profiles/'+enc(name)+'/upload',{method:'POST',body:fd});
+        replaceProfile(p);
+        openProfileEditor(name); // re-render fresh
+        toast(kind==='animation'?'Image importée':'Son importé','success');
+      }catch(e){ toast(humanErr(e),'error'); }
+    };
+  };
+  doUp($('#anim-file-input'),'animation'); doUp($('#ring-file-input'),'sound');
+  $('#anim-upload').onclick=()=>$('#anim-file-input').click();
+  $('#ring-upload').onclick=()=>$('#ring-file-input').click();
+
+  /* save metadata */
+  $('#prof-save').onclick=async()=>{
+    const btn=$('#prof-save'); btn.disabled=true;
+    const body={
+      welcome:{enabled:$('#anim-enable').classList.contains('on'),loop:$('#anim-loop').classList.contains('on'),
+        count:int('count'),durationMs:int('durationMs')},
+      ringButton:{enabled:$('#ring-enable').classList.contains('on'),volume:int('volume'),repeatTimes:int('repeatTimes')}
+    };
+    try{
+      const p=await api('api/profiles/'+enc(name)+'/metadata',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      replaceProfile(p); renderProfiles();
+      toast('Réglages enregistrés','success'); closeModal();
+    }catch(e){ toast(humanErr(e),'error'); btn.disabled=false; }
+  };
+
+  /* apply from modal */
+  $('#prof-apply').onclick=async()=>{
+    const btn=$('#prof-apply'); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('bell')+'<span class="spin"></span>';
+    try{ await api('api/profiles/'+enc(name)+'/apply',{method:'POST'}); toast('Profil appliqué sur la sonnette','success'); closeModal(); }
+    catch(e){ toast(humanErr(e),'error'); btn.disabled=false; btn.innerHTML=old; }
+  };
+}
+function replaceProfile(p){ const i=state.profiles.findIndex(x=>x.name===p.name); if(i>=0) state.profiles[i]=p; else state.profiles.push(p); }
+const int=(id)=>parseInt($('#'+id).value,10)||0;
+function fieldNum(id,label,val,min,max){
+  return '<div class="field"><label for="'+id+'">'+esc(label)+'</label><input type="number" id="'+id+'" value="'+val+'" min="'+min+'" max="'+max+'"></div>';
+}
+function volField(id,label,val){
+  return '<div class="field" style="grid-column:1/-1"><div class="progress-lbl"><label for="'+id+'">'+esc(label)+'</label><span id="'+id+'-t" style="color:var(--accent)">'+val+' %</span></div>'+
+    '<input type="range" id="'+id+'" min="0" max="100" value="'+val+'"></div>';
+}
+
+/* ---------- SOUNDS ---------- */
+function renderSounds(){
+  const sfx=state.sfx||{};
+  const files=state.sfxFiles||[];
+  const presets=sfx.presets||[];
+  $('#sounds-path').textContent=(state.paths&&state.paths.soundsDir)||'/sounds';
+
+  let h='<div class="row-toggle"><div><div class="lbl">Volume par défaut</div><div class="hint">Appliqué aux effets sans volume propre</div></div>'+
+    '<div style="width:min(220px,100%)">'+
+    '<div class="progress-lbl" style="margin-bottom:6px"><span>Volume</span><span id="defvol-t" style="color:var(--accent)">'+(sfx.defaultVolume||100)+' %</span></div>'+
+    '<input type="range" id="defvol" min="0" max="100" value="'+(sfx.defaultVolume||100)+'"></div></div>'+
+    '<div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-primary" id="sfx-save">'+icon('check')+'Enregistrer</button></div>'+
+    '<div class="row-list" style="margin-top:16px" id="sfx-presets"></div>'+
+    (presets.length?'':'<p style="font-size:.8rem;color:var(--text-faint);margin-top:10px">Ajoutez des effets prédéfinis dans la section Configuration.</p>');
+  $('#sfx-body').innerHTML=h;
+
+  $('#defvol').addEventListener('input',e=>$('#defvol-t').textContent=e.target.value+' %');
+  $('#sfx-save').onclick=async()=>{
+    const cfg=JSON.parse(JSON.stringify(state.config||{}));
+    cfg.sfx=cfg.sfx||{}; cfg.sfx.defaultVolume=parseInt($('#defvol').value,10)||0;
+    try{ await saveConfig(cfg); toast('Volume enregistré (redémarrage requis)','success'); }
+    catch(e){ toast(humanErr(e),'error'); }
+  };
+
+  /* preset list */
+  const pr=$('#sfx-presets');
+  if(presets.length){
+    for(const p of presets){
+      const row=document.createElement('div'); row.className='file-chip';
+      row.innerHTML='<div style="color:var(--accent)">'+icon('music')+'</div><div class="nm"><div>'+esc(p.name)+'</div>'+
+        '<div style="font-size:.72rem;color:var(--text-faint);font-weight:500">'+esc(p.file)+' — volume '+(p.volume||('par défaut '+sfx.defaultVolume))+' %</div></div>'+
+        '<button class="btn btn-sm btn-primary" data-play>'+icon('play')+'Jouer</button>';
+      row.querySelector('[data-play]').onclick=()=>playSfx(p.file,p.volume||sfx.defaultVolume,row.querySelector('[data-play]'));
+      pr.appendChild(row);
+    }
+  }
+
+  /* sounds files */
+  const sl=$('#sounds-list'); sl.innerHTML='';
+  $('#upload-sound-btn').onclick=()=>$('#upload-sound-input').click();
+  $('#upload-sound-input').onchange=async()=>{
+    const f=$('#upload-sound-input').files[0]; if(!f) return;
+    const btn=$('#upload-sound-btn'); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('upload')+'<span class="spin"></span>';
+    try{
+      const fd=new FormData(); fd.append('file',f);
+      await api('api/sounds',{method:'POST',body:fd});
+      state.sfxFiles.push(f.name); state.sfxFiles.sort();
+      renderSounds(); toast('Son « '+f.name+' » importé','success');
+      $('#upload-sound-input').value='';
+    }catch(e){ toast(humanErr(e),'error'); btn.disabled=false; btn.innerHTML=old; }
+  };
+  if(files.length){
+    for(const f of files){
+      const row=document.createElement('div'); row.className='file-chip';
+      row.innerHTML='<div style="color:var(--text-dim)">'+icon('music')+'</div>'+
+        '<a class="nm" style="text-decoration:none" href="api/sounds/'+enc(f)+'" target="_blank" title="Prévisualiser">'+esc(f)+'</a>'+
+        '<button class="btn btn-sm" data-play>'+icon('play')+'Jouer</button>'+
+        '<button class="btn btn-sm btn-danger" data-del title="Supprimer">'+icon('trash')+'</button>';
+      row.querySelector('[data-play]').onclick=()=>playSfx(f, sfx.defaultVolume||100, row.querySelector('[data-play]'));
+      row.querySelector('[data-del]').onclick=()=>confirmDialog('Supprimer','Supprimer le fichier « '+f+' » ?',async()=>{
+        try{ await api('api/sounds/'+enc(f),{method:'DELETE'});
+          state.sfxFiles=state.sfxFiles.filter(x=>x!==f); renderSounds(); toast('Fichier supprimé','success');
+        }catch(e){ toast(humanErr(e),'error'); }
+      });
+      sl.appendChild(row);
+    }
+  } else {
+    sl.innerHTML='<div class="empty">'+icon('music')+'<div>Aucun son dans le dossier</div></div>';
+  }
+}
+async function playSfx(file,volume,btn){
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('play')+'<span class="spin"></span>';
+  try{ await api('api/actions/sfx',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file,volume})});
+    toast('Son joué sur la sonnette','success');
+  }catch(e){ toast(humanErr(e),'error'); }
+  btn.disabled=false; btn.innerHTML=old;
+}
+
+/* ---------- CONFIG ---------- */
+const CFG_SCHEMA=[
+  {id:'mqtt',title:'Connexion MQTT',icon:'folder',fields:[
+    {key:'host',label:'Hôte du broker',type:'text',def:''},
+    {key:'port',label:'Port',type:'number',def:1883},
+    {key:'username',label:'Identifiant',type:'text',def:''},
+    {key:'password',label:'Mot de passe',type:'password',def:''},
+    {key:'qos',label:'QoS',type:'select',opts:['0','1','2'],def:1},
+    {key:'keepalive',label:'Keepalive (s)',type:'number',def:30},
+    {key:'tls_enabled',label:'TLS activé',type:'toggle',def:0},
+    {key:'clean_session',label:'Session propre',type:'toggle',def:1,adv:true},
+    {key:'retained_online',label:'Statut retenu',type:'toggle',def:1,adv:true},
+    {key:'prefix',label:'Préfixe des topics',type:'text',def:'chrishansentech',adv:true},
+    {key:'instance',label:'Instance',type:'text',def:'default',adv:true},
+  ]},
+  {id:'ssh',title:'Sonnette (SSH)',icon:'folder',fields:[
+    {key:'host',label:'Adresse de la sonnette',type:'text',def:''},
+    {key:'port',label:'Port SSH',type:'number',def:22},
+    {key:'username',label:'Utilisateur',type:'text',def:'ubnt'},
+    {key:'password_env',label:'Variable d’env. mot de passe',type:'text',def:'UNIFI_PROTECT_RECOVERY_CODE'},
+  ]},
+  {id:'unifi',title:'Application (UniFi)',icon:'folder',fields:[
+    {key:'apply_method',label:'Méthode d’application',type:'select',opts:['ipc','legacy'],def:'ipc'},
+  ]},
+];
+function renderConfig(){
+  const cfg=state.config||{};
+  const wrap=$('#config-form'); wrap.innerHTML='';
+  for(const sec of CFG_SCHEMA){
+    const obj=(cfg[sec.id]&&typeof cfg[sec.id]==='object')?cfg[sec.id]:{};
+    const fields=sec.fields.map(f=>{
+      if(f.type==='toggle'){
+        const on=f.def?(obj[f.key]===1||obj[f.key]===true):(obj[f.key]===1||(obj[f.key]===undefined&&f.def)||obj[f.key]===true);
+        return '<div class="row-toggle'+(f.adv?' adv':'-row')+'"><div><div class="lbl">'+esc(f.label)+'</div></div>'+
+          '<button class="switch'+(on?' on':'')+'" data-tgl="'+sec.id+'.'+f.key+'" role="switch"></button></div>';
+      }
+      const cur=obj[f.key]!==undefined?obj[f.key]:f.def;
+      let inner;
+      if(f.type==='select'){
+        inner='<select data-fld="'+sec.id+'.'+f.key+'">'+f.opts.map(o=>'<option value="'+o+'"'+((String(cur)===o)?' selected':'')+'>'+esc(o==='ipc'?'IPC (rapide)':o==='legacy'?'Héritage (lent)':o)+'</option>').join('')+'</select>';
+      }else{
+        inner='<input type="'+f.type+'" data-fld="'+sec.id+'.'+f.key+'" value="'+esc(cur)+'" '+(f.type==='number'?'min="0"':'')+'>';
+      }
+      return '<div class="field"><label>'+esc(f.label)+'</label>'+inner+(f.adv?'<span class="hint">Avancé</span>':'')+'</div>';
+    }).join('');
+    const adv=i=>'';
+    const d=document.createElement('details'); d.className='sec'; 
+    if(sec.id==='mqtt'||sec.id==='ssh') d.open=true;
+    d.innerHTML='<summary><span style="color:var(--accent)">'+icon('folder')+'</span>'+esc(sec.title)+'<span style="font-size:.72rem;color:var(--text-faint);font-weight:600" id="clue-'+sec.id+'"></span><span class="chev">'+icon('chev')+'</span></summary>'+
+      '<div class="inner"><div class="form-grid">'+fields+'</div></div>';
+    wrap.appendChild(d);
+  }
+
+  /* presets */
+  const presets=cfg.presets||[];
+  const pr=document.createElement('details'); pr.className='sec'; pr.open=true;
+  pr.innerHTML='<summary><span style="color:var(--accent)">'+icon('folder')+'</span>Presets (profils raccourcis)<span class="chev">'+icon('chev')+'</span></summary>'+
+    '<div class="inner"><div class="row-list" id="cfg-presets"></div>'+
+    '<button class="btn btn-sm" style="margin-top:10px" id="add-preset">'+icon('plus')+'Ajouter un preset</button></div>';
+  wrap.appendChild(pr);
+  const pw=pr.querySelector('#cfg-presets');
+  if(!presets.length){ pw.innerHTML='<div style="font-size:.82rem;color:var(--text-faint)">Aucun preset — ils évitent de taper un dossier à chaque fois depuis Home Assistant.</div>'; }
+  presets.forEach((p,i)=>pw.appendChild(presetRow(p,i,true)));
+  $('#add-preset').onclick=()=>pw.appendChild(presetRow({name:'',directory:''},presets.length,false));
+
+  /* sfx presets */
+  const sfxc=(cfg.sfx&&typeof cfg.sfx==='object')?cfg.sfx:{};
+  const sfxp=sfxc.presets||[];
+  const sd=document.createElement('details'); sd.className='sec'; sd.open=sfxp.length>0;
+  sd.innerHTML='<summary><span style="color:var(--accent)">'+icon('folder')+'</span>Effets sonores prédéfinis<span class="chev">'+icon('chev')+'</span></summary>'+
+    '<div class="inner"><div class="row-list" id="cfg-sfx"></div>'+
+    '<button class="btn btn-sm" style="margin-top:10px" id="add-sfx">'+icon('plus')+'Ajouter un effet</button></div>';
+  wrap.appendChild(sd);
+  const sw=sd.querySelector('#cfg-sfx');
+  sfxp.forEach((p,i)=>sw.appendChild(sfxRow(p,i,true)));
+
+  /* toggle handlers */
+  wrap.querySelectorAll('[data-tgl]').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+}
+
+function presetRow(p,i,withDel){
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:10px;align-items:center';
+  row.innerHTML=
+    '<div class="field" style="flex:1"><input type="text" data-pname placeholder="Nom affiché" value="'+esc(p.name)+'"></div>'+
+    '<div class="field" style="flex:1"><input type="text" data-pdir placeholder="dossier" value="'+esc(p.directory)+'"></div>'+
+    (withDel?'<button class="btn btn-sm btn-danger" data-del>'+icon('trash')+'</button>':'');
+  const del=row.querySelector('[data-del]'); if(del) del.onclick=()=>{ row.remove(); const c=document.querySelector('#cfg-presets'); if(!c.children.length) c.innerHTML='<div style="font-size:.82rem;color:var(--text-faint)">Aucun preset.</div>'; };
+  return row;
+}
+function sfxRow(p,i,withDel){
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:10px;align-items:center';
+  row.innerHTML=
+    '<div class="field" style="flex:1.2"><input type="text" data-sname placeholder="Nom" value="'+esc(p.name)+'"></div>'+
+    '<div class="field" style="flex:1.4"><input type="text" data-sfile placeholder="fichier.ogg" value="'+esc(p.file)+'"></div>'+
+    '<div class="field" style="flex:.6"><input type="number" data-svol placeholder="100" min="0" max="100" value="'+(p.volume||'')+'"></div>'+
+    (withDel?'<button class="btn btn-sm btn-danger" data-del>'+icon('trash')+'</button>':'');
+  const del=row.querySelector('[data-del]'); if(del) del.onclick=()=>{ row.remove(); const c=document.querySelector('#cfg-sfx'); if(!c.children.length) c.innerHTML='<div style="font-size:.82rem;color:var(--text-faint)">Aucun effet.</div>'; };
+  return row;
+}
+
+function collectConfig(){
+  const cfg=JSON.parse(JSON.stringify(state.config||{}));
+  for(const sec of CFG_SCHEMA){
+    if(typeof cfg[sec.id]!=='object'||cfg[sec.id]===null) cfg[sec.id]={};
+    for(const f of sec.fields){
+      const el=document.querySelector('[data-fld="'+sec.id+'.'+f.key+'"], [data-tgl="'+sec.id+'.'+f.key+'"]');
+      if(!el) continue;
+      let val;
+      if(f.type==='toggle') val=el.classList.contains('on')?1:0;
+      else if(f.type==='number'){ val=parseInt(el.value,10); if(Number.isNaN(val)) val=f.def; }
+      else if(f.type==='select'){ val=el.value; const n=Number(val); if(val.trim()!=='' && Number.isFinite(n) && String(n)===val.trim()) val=n; }
+      else val=el.value;
+      cfg[sec.id][f.key]=val;
+    }
+  }
+  /* presets */
+  const pRows=[...document.querySelectorAll('#cfg-presets .row-toggle, #cfg-presets > div')].filter(r=>r.querySelector('[data-pname]'));
+  cfg.presets=pRows.map(r=>({name:r.querySelector('[data-pname]').value.trim(),directory:r.querySelector('[data-pdir]').value.trim()})).filter(p=>p.name&&p.directory);
+  /* sfx presets */
+  if(typeof cfg.sfx!=='object'||cfg.sfx===null) cfg.sfx={};
+  const sRows=[...document.querySelectorAll('#cfg-sfx > div')].filter(r=>r.querySelector('[data-sname]'));
+  cfg.sfx.presets=sRows.map(r=>({name:r.querySelector('[data-sname]').value.trim(),file:r.querySelector('[data-sfile]').value.trim(),volume:parseInt(r.querySelector('[data-svol]').value,10)||0})).filter(p=>p.name&&p.file);
+  return cfg;
+}
+async function saveConfig(cfg){
+  await api('api/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
+  state = await api('api/bootstrap'); // re-read fresh state
+  render();
+}
+
+/* ---------- boot & render ---------- */
+function render(){
+  renderHome();
+  const instance=state.app.instanceHuman;
+  $('#chip-label').textContent=instance;
+  $('#brand-inst').textContent='Sonnette '+(state.app.instance==='default'?'':state.app.instance);
+  $('#side-ver').textContent='v'+state.app.version;
+  renderConfig();
+  if($('#view-sounds').className.includes('active')) renderSounds();
+}
+async function boot(){
+  try{
+    state=await api('api/bootstrap');
+    $('.boot').classList.add('hide');
+    render();
+  }catch(e){
+    $('.boot').classList.add('hide');
+    $('#page-title').textContent='Connexion impossible';
+    $('#page-sub').textContent=e.message;
+  }
+}
+$('#save-config-btn').onclick=async()=>{
+  const btn=$('#save-config-btn'); btn.disabled=true; const old=btn.innerHTML; btn.innerHTML=icon('check')+'<span class="spin"></span>';
+  try{ await saveConfig(collectConfig()); toast('Configuration enregistrée — redémarrez le conteneur pour l’appliquer','success'); }
+  catch(e){ toast(humanErr(e),'error'); btn.disabled=false; btn.innerHTML=old; }
+};
+boot();
+</script>
+</body>
+</html>

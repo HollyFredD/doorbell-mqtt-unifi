@@ -161,6 +161,38 @@ fn main() {
         state_dir,
         sounds_dir,
     });
+
+    // Embedded web interface: configures the doorbell from a phone or desktop
+    // browser. Independent of MQTT; runs until the process exits.
+    let web_enabled = match std::env::var("DOORBELL_WEB_ENABLED") {
+        Ok(v) => !v.eq_ignore_ascii_case("0") && !v.eq_ignore_ascii_case("false"),
+        Err(_) => true,
+    };
+    if web_enabled {
+        let bind = std::env::var("DOORBELL_WEB_BIND").unwrap_or_else(|_| "0.0.0.0".to_string());
+        let port: u16 = std::env::var("DOORBELL_WEB_PORT")
+            .ok()
+            .and_then(|v| v.trim().parse().ok())
+            .unwrap_or(8080);
+        let web_ctx = Arc::clone(&ctx);
+        let web_config_path = config_path.clone();
+        let web_profiles_dir = profiles_dir.clone();
+        let web_bind = bind.clone();
+        std::thread::Builder::new()
+            .name("web-ui".into())
+            .spawn(move || {
+                doorbell_mqtt_unifi::web::run(
+                    web_ctx,
+                    web_config_path,
+                    web_profiles_dir,
+                    &web_bind,
+                    port,
+                );
+            })
+            .expect("spawning web UI thread");
+        log_info!("Web interface enabled on http://{bind}:{port}");
+    }
+
     let (tx, worker) = start_router(Arc::clone(&ctx), Arc::clone(&shutdown));
 
     let mut connected = false;

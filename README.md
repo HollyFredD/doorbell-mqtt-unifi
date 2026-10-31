@@ -279,6 +279,49 @@ docker run -d \
 
 Restart the container after modifying `config.json`.
 
+## Web Interface
+
+The service embeds a **web configuration interface** (no extra components), served by
+default on **port 8080**. It is mobile-first and works from any browser on your LAN —
+no authentication is built in, so only expose it on a trusted network.
+
+```
+docker run -d \
+  --name doorbell-mqtt-unifi \
+  --restart unless-stopped \
+  -p 8080:8080 \
+  -e UNIFI_PROTECT_RECOVERY_CODE=your_recovery_code \
+  -v /path/to/config:/config \
+  -v /path/to/profiles:/profiles \
+  -v /path/to/sounds:/sounds \
+  ghcr.io/chrishansentech/doorbell-mqtt-unifi:latest
+```
+
+Then open `http://<docker-host>:8080`.
+
+### What you can do
+
+- **Accueil** — status snapshot (last applied profile, apply method), quick actions
+  (reapply, validate, test config, download assets).
+- **Profils** — create profiles, upload the welcome **image** (PNG) and the **ring sound**
+  (OGG/WAV), tune playback (loop, duration, count, volume, repetitions) with live
+  preview, apply straight to the doorbell.
+- **Sons** — manage ad-hoc SFX: default volume, play/pause individual sounds and
+  upload files to the sounds library.
+- **Configuration** — friendly editors for MQTT, SSH, UniFi apply method, presets and
+  SFX presets. Changes are written to `config.json` and require a container restart.
+
+Doorbell actions triggered from the web UI go through the same engine as Home Assistant
+and stay in sync (status/errors are still published over MQTT).
+
+### Environment variables
+
+| Variable               | Default   | Description                                            |
+|------------------------|-----------|--------------------------------------------------------|
+| `DOORBELL_WEB_ENABLED` | `1`       | Set to `0` to disable the web interface.               |
+| `DOORBELL_WEB_BIND`    | `0.0.0.0` | Address to bind (use `127.0.0.1` for localhost only).  |
+| `DOORBELL_WEB_PORT`    | `8080`    | TCP port for the interface.                            |
+
 ## Native Build
 
 Although Docker is the recommended deployment method, the service can also be built and run directly on Linux.

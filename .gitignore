@@ -22,6 +22,9 @@
 # ---- Logs ----
 *.log
 
+# ---- Playwright ----
+.playwright-mcp/
+
 # ---- VS Code ----
 .vscode/
 *.code-workspace
