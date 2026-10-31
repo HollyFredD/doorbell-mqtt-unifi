@@ -5,7 +5,7 @@
 ![Version](https://img.shields.io/github/v/release/ChrisHansenTech/doorbell-mqtt-unifi)
 ![License](https://img.shields.io/github/license/ChrisHansenTech/doorbell-mqtt-unifi)
 
-**Doorbell MQTT UniFi** is a lightweight, C-based service that bridges
+**Doorbell MQTT UniFi** is a lightweight, Rust-based service that bridges
 **UniFi Protect G4 Doorbell Pro** devices with **MQTT** and **Home Assistant**.
 
 It enables fast, local-only control of custom animations, sounds, and profile assets — without cloud dependencies or manual SSH scripting.
@@ -53,7 +53,7 @@ Validated environments:
 - Native build on Ubuntu under WSL2
 - Native build on Raspberry Pi OS Lite 64-bit
 
-The service is written in portable C and has been validated on both x86_64
+The service is written in Rust and has been validated on both x86_64
 and ARM64 systems.
 
 ## Apply Methods
@@ -283,37 +283,29 @@ Restart the container after modifying `config.json`.
 
 Although Docker is the recommended deployment method, the service can also be built and run directly on Linux.
 
-Build tools:
+Requirements:
 
-- `build-essential`
-- `pkg-config`
-
-Libraries:
-
-- `libssl-dev`
-- `libssh2-1-dev`
-- `libpaho-mqtt-dev`
+- A Rust toolchain (1.88 or newer), installed with [rustup](https://rustup.rs)
+- `build-essential`, `pkg-config` and `libssl-dev` (libssh2 is built from source by Cargo)
 
 Example for Debian, Ubuntu, or Raspberry Pi OS:
 
 ```bash
-sudo apt update  
-sudo apt install -y \  
-  build-essential \  
-  pkg-config \  
-  libssl-dev \  
-  libssh2-1-dev \  
-  libpaho-mqtt-dev
+sudo apt update
+sudo apt install -y build-essential pkg-config libssl-dev
 ```
 
 Build and run:
 
 ```bash
-git clone https://github.com/ChrisHansenTech/doorbell-mqtt-unifi.git  
-cd doorbell-mqtt-unifi  
-make  
-./bin/doorbell-mqtt-unifi
+git clone https://github.com/ChrisHansenTech/doorbell-mqtt-unifi.git
+cd doorbell-mqtt-unifi
+cargo build --release
+./target/release/doorbell-mqtt-unifi
 ```
+
+Run the tests with `cargo test`.
+
 ### Runtime Paths
 
 When running natively, the service expects the same default paths used by the Docker container.

@@ -1,32 +1,19 @@
 # Build stage
-FROM debian:bookworm AS builder
-
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    pkg-config \
-    libssl-dev \
-    libssh2-1-dev \
-    libpaho-mqtt-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM rust:1.88-bookworm AS builder
 
 WORKDIR /build
 
+COPY Cargo.toml Cargo.lock ./
 COPY src/ ./src/
-COPY include/ ./include/
-COPY Makefile ./
 
 ARG APP_VERSION=0.0.0-dev
-RUN make clean && make EXTRA_CFLAGS='-DAPP_VERSION="\"'"${APP_VERSION}"'\"" '
+RUN APP_VERSION="${APP_VERSION}" cargo build --release --locked
 
 # Final stage
 FROM debian:bookworm
 
 RUN apt-get update && apt-get install -y \
     libssl3 \
-    libssh2-1 \
-    libpaho-mqtt1.3 \
     ca-certificates \
     gosu \
     jq \
@@ -34,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY --from=builder /build/bin/doorbell-mqtt-unifi /app/doorbell-mqtt-unifi
+COPY --from=builder /build/target/release/doorbell-mqtt-unifi /app/doorbell-mqtt-unifi
 
 COPY config.example.json /defaults/config.json
 

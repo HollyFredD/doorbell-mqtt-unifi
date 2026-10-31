@@ -18,15 +18,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            pkg-config \
-            libssl-dev \
-            libssh2-1-dev \
-            libpaho-mqtt-dev
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Derive version (dev-ish)
         run: |
@@ -35,7 +28,6 @@ jobs:
 
       - name: Build + test
         run: |
-          make clean
-          make test EXTRA_CFLAGS='-DAPP_VERSION="\"'"${VERSION}"'\"" '
-          make release EXTRA_CFLAGS='-DAPP_VERSION="\"'"${VERSION}"'\"" '
+          APP_VERSION="${VERSION}" cargo test --locked
+          APP_VERSION="${VERSION}" cargo build --release --locked
 
